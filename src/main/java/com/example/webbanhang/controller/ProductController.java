@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 @Controller
 @RequestMapping("/products")
@@ -105,5 +106,10 @@ public class ProductController {
         return "redirect:/products";
     }
 
-
+    @GetMapping("/search")
+    public String searchProduct(@RequestParam("keyword") String keyword, Model model) {
+        List<Product> searchResults = productService.searchProducts(keyword);
+        model.addAttribute("products", searchResults);
+        return "products/product-list"; // hoặc trả về trang kết quả tìm kiếm khác
+    }
 }

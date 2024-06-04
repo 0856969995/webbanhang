@@ -61,6 +61,10 @@
           <a class="nav-link active" aria-current="page" href="/categories">Nhập Category</a>
         </li>
       </ul>
+      <form class="d-flex" th:action="@{/products/search}" method="get">
+        <input class="form-control me-2" type="search" placeholder="Tìm kiếm sản phẩm..." aria-label="Search" name="keyword">
+        <button class="btn btn-outline-success" type="submit">Tìm kiếm</button>
+      </form>
     </div>
   </div>
 </nav>
