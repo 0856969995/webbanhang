@@ -1,16 +1,15 @@
 package com.example.webbanhang.controller;
 
-import com.example.webbanhang.model.CartItem;
+import com.example.webbanhang.model.Order;
+import com.example.webbanhang.model.OrderDetail;
 import com.example.webbanhang.service.CartService;
 import com.example.webbanhang.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/order")
@@ -24,13 +23,22 @@ public class OrderController {
     public String checkout() {
         return "/cart/checkout";
     }
+
     @PostMapping("/submit")
-    public String submitOrder(String customerName) {
-        List<CartItem> cartItems = cartService.getCartItems();
-        if (cartItems.isEmpty()) {
-            return "redirect:/cart"; // Redirect if cart is empty
-        }
-        orderService.createOrder(customerName, cartItems);
+    public String submitOrder(@RequestParam String customerName,
+                              @RequestParam String address,
+                              @RequestParam String phoneNumber,
+                              @RequestParam String notes) {
+        Order order = new Order();
+        order.setCustomerName(customerName);
+        order.setAddress(address);
+        order.setPhoneNumber(phoneNumber);
+        order.setNotes(notes);
+        order.setOrderDetails(cartService.getCartItems().stream()
+                .map(cartItem -> new OrderDetail(cartItem.getProduct(), cartItem.getQuantity()))
+                .collect(Collectors.toList()));
+        orderService.saveOrder(order);
+        cartService.clearCart();
         return "redirect:/order/confirmation";
     }
 

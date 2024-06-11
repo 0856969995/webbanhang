@@ -20,6 +20,10 @@ public class OrderDetail {
 
     private int quantity;
 
+    public OrderDetail(Product product, int quantity) {
+        this.product = product;
+        this.quantity = quantity;
+    }
     @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product;

@@ -13,18 +13,39 @@ public class CartController {
     @Autowired
     private CartService cartService;
 
+
+
     @GetMapping
     public String showCart(Model model) {
         model.addAttribute("cartItems", cartService.getCartItems());
+        model.addAttribute("totalPrice", cartService.getTotalPrice());
         return "/cart/cart";
     }
 
+
     @PostMapping("/add")
-    public String addToCart(@RequestParam Long productId, @RequestParam int
-            quantity) {
+    public String addToCart(@RequestParam Long productId, @RequestParam int quantity) {
         cartService.addToCart(productId, quantity);
         return "redirect:/cart";
     }
+
+    /*@PostMapping("/update/{productId}")
+    public String updateCartItem(@PathVariable Long productId, @RequestParam int quantity) {
+        if (quantity < 1) {
+            cartService.removeFromCart(productId);
+        } else {
+            cartService.updateCartItem(productId, quantity);
+        }
+        return "redirect:/cart";
+    }*/
+
+    @PostMapping("/update/{productId}")
+    public String updateCartItem(@PathVariable Long productId, @RequestParam int quantity) {
+        cartService.updateCartItem(productId, quantity);
+        return "redirect:/cart";
+    }
+
+    @GetMapping("/remove/{productId}")
     public String removeFromCart(@PathVariable Long productId) {
         cartService.removeFromCart(productId);
         return "redirect:/cart";
@@ -35,4 +56,6 @@ public class CartController {
         cartService.clearCart();
         return "redirect:/cart";
     }
+
+
 }

@@ -61,9 +61,15 @@
           <a class="nav-link active" aria-current="page" href="/categories">Nhập Category</a>
         </li>
       </ul>
+
+      <!-- Thanh tìm kiếm -->
       <form class="d-flex" th:action="@{/products/search}" method="get">
-        <input class="form-control me-2" type="search" placeholder="Tìm kiếm sản phẩm..." aria-label="Search" name="keyword">
-        <button class="btn btn-outline-success" type="submit">Tìm kiếm</button>
+        <input class="form-control me-2" type="search" placeholder="Search product..." aria-label="Search" name="keyword">
+        <select class="form-select me-2" name="category">
+          <option value="">All Categories</option>
+          <option th:each="category : ${categories}" th:value="${category.id}" th:text="${category.name}"></option>
+        </select>
+        <button class="btn btn-outline-success" type="submit">Search</button>
       </form>
     </div>
   </div>

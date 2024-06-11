@@ -21,6 +21,11 @@
       <div class="text-danger" th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></div>
     </div>
     <div class="mb-3">
+      <label for="price" class="form-label">Quantity:</label>
+      <input type="text" th:field="*{quantity}" class="form-control" id="quantity" required>
+      <div class="text-danger" th:if="${#fields.hasErrors('quantity')}" th:errors="*{quantity}"></div>
+    </div>
+    <div class="mb-3">
       <label for="category" class="form-label">Category:</label>
       <select th:field="*{category.id}" class="form-control" id="category" required>
         <option th:each="category : ${categories}" th:value="${category.id}" th:text="${category.name}"></option>

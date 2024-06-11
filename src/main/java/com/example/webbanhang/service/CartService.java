@@ -17,9 +17,17 @@ public class CartService {
 
     @Autowired
     private ProductRepository productRepository;
+
     public void addToCart(Long productId, int quantity) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("Product not found: " + productId));
+
+        for (CartItem item : cartItems) {
+            if (item.getProduct().getId().equals(productId)) {
+                item.setQuantity(item.getQuantity() + quantity);
+                return;
+            }
+        }
         cartItems.add(new CartItem(product, quantity));
     }
 
@@ -33,5 +41,21 @@ public class CartService {
 
     public void clearCart() {
         cartItems.clear();
+    }
+
+    public void updateCartItem(Long productId, int quantity) {
+        for (CartItem item : cartItems) {
+            if (item.getProduct().getId().equals(productId)) {
+                item.setQuantity(quantity);
+                return;
+            }
+        }
+        throw new IllegalArgumentException("Product not found in cart: " + productId);
+    }
+
+    public double getTotalPrice() {
+        return cartItems.stream()
+                .mapToDouble(CartItem::getSubtotal)
+                .sum();
     }
 }

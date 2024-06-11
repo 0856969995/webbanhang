@@ -19,6 +19,7 @@
       <th>ID</th>
       <th>Name</th>
       <th>Price</th>
+      <th>Quantity</th>
       <th>Description</th>
       <th>Category Name</th>
       <th>Image</th>
@@ -31,6 +32,8 @@
       <td th:text="${product.id}"></td>
       <td th:text="${product.name}"></td>
       <td th:text="${product.price}"></td>
+      <td th:text="${product.quantity}"></td>
+
       <td th:text="${product.description}"></td>
       <td th:text="${product.category.name}"></td>
       <td>
@@ -42,7 +45,7 @@
       </td>
       <td>
         <form th:action="@{/cart/add}" method="post">
-          <input type="number" name="quantity" min="1" value="1" class="form-control d-inline-block" style="width: 70px;">
+          <input type="number" name="quantity" min="1" th:max="${product.quantity}" value="1" class="form-control d-inline-block" style="width: 70px;">
           <input type="hidden" th:value="${product.id}" name="productId"/>
           <button type="submit" class="btn btn-warning btn-sm">Add to Cart</button>
         </form>

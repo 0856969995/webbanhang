@@ -48,4 +48,15 @@ public class ProductService {
     public List<Product> searchProducts(String keyword) {
         return productRepository.findByKeyword(keyword);
     }
+    public List<Product> searchProductsByKeywordAndCategory(String keyword, Long categoryId) {
+        if (categoryId != null) {
+            return productRepository.findByKeywordAndCategory(keyword, categoryId);
+        } else {
+            return productRepository.findByKeyword(keyword);
+        }
+    }
+
+    public List<Product> searchProductsByKeywordAndCategoryName(String keyword, String categoryName) {
+        return productRepository.findByKeywordAndCategoryName(keyword, categoryName);
+    }
 }

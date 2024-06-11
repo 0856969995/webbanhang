@@ -1,7 +1,7 @@
 package com.example.webbanhang.service;
 
-import com.example.webbanhang.model.Order;
 import com.example.webbanhang.model.CartItem;
+import com.example.webbanhang.model.Order;
 import com.example.webbanhang.model.OrderDetail;
 import com.example.webbanhang.repository.OrderDetailRepository;
 import com.example.webbanhang.repository.OrderRepository;
@@ -21,12 +21,15 @@ public class OrderService {
     @Autowired
     private OrderDetailRepository orderDetailRepository;
     @Autowired
-    private CartService cartService;  // Assuming you have a CartService
+    private CartService cartService;
 
     @Transactional
-    public Order createOrder(String customerName, List<CartItem> cartItems) {
+    public Order createOrder(String customerName, String address, String phoneNumber, String notes, List<CartItem> cartItems) {
         Order order = new Order();
         order.setCustomerName(customerName);
+        order.setAddress(address);
+        order.setPhoneNumber(phoneNumber);
+        order.setNotes(notes);
         order = orderRepository.save(order);
 
         for (CartItem item : cartItems) {
@@ -37,11 +40,11 @@ public class OrderService {
             orderDetailRepository.save(detail);
         }
 
-
-
-        // Optionally clear the cart after order placement
         cartService.clearCart();
-
         return order;
+    }
+
+    public void saveOrder(Order order) {
+        orderRepository.save(order);
     }
 }
