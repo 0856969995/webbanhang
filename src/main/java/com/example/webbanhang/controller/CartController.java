@@ -29,6 +29,7 @@ public class CartController {
         return "redirect:/cart";
     }
 
+
     /*@PostMapping("/update/{productId}")
     public String updateCartItem(@PathVariable Long productId, @RequestParam int quantity) {
         if (quantity < 1) {
