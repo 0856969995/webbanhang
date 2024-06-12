@@ -1,5 +1,4 @@
 package com.example.webbanhang.controller;
-
 import com.example.webbanhang.model.Product;
 import com.example.webbanhang.service.CategoryService;
 import com.example.webbanhang.service.ProductService;
@@ -11,25 +10,20 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-
 @Controller
 @RequestMapping("/products")
 public class ProductController {
     @Autowired
     private ProductService productService;
-
     @Autowired
     private CategoryService categoryService;
-
     @Value("${upload.path}")
     private String uploadPath;
-
     @GetMapping
     public String showProductList(Model model) {
         model.addAttribute("products", productService.getAllProducts());

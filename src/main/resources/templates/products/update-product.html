@@ -20,6 +20,10 @@
       <input type="text" th:field="*{price}" class="form-control" id="price" required>
     </div>
     <div class="mb-3">
+      <label for="quantity" class="form-label">Quantity:</label>
+      <input type="text" th:field="*{quantity}" class="form-control" id="quantity" required>
+    </div>
+    <div class="mb-3">
       <label for="category" class="form-label">Category:</label>
       <select th:field="*{category.id}" class="form-control" id="category">
         <option th:each="category : ${categories}" th:value="${category.id}" th:text="${category.name}" th:selected="${category.id == product.category.id}"></option>
