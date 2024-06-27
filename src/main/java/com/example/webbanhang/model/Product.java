@@ -3,6 +3,8 @@ package com.example.webbanhang.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Setter
 @Getter
 @RequiredArgsConstructor
@@ -23,4 +25,8 @@ public class Product {
     private Category category;
     private int quantity;
     private String image;
+    @OneToMany(mappedBy = "product", cascade = CascadeType.REMOVE)
+    private List<OrderDetail> orderDetails;
+
+    private String imageUrl; // Đường dẫn URL đến hình ảnh (nếu cần)
 }

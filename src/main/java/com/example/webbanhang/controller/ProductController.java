@@ -1,4 +1,5 @@
 package com.example.webbanhang.controller;
+import com.example.webbanhang.model.Category;
 import com.example.webbanhang.model.Product;
 import com.example.webbanhang.service.CategoryService;
 import com.example.webbanhang.service.ProductService;
@@ -20,10 +21,18 @@ import java.util.List;
 public class ProductController {
     @Autowired
     private ProductService productService;
+
     @Autowired
     private CategoryService categoryService;
+
     @Value("${upload.path}")
     private String uploadPath;
+
+    @ModelAttribute("categories")
+    public List<Category> populateCategories() {
+        return categoryService.getAllCategories();
+    }
+
     @GetMapping
     public String showProductList(Model model) {
         model.addAttribute("products", productService.getAllProducts());
@@ -47,9 +56,10 @@ public class ProductController {
         try {
             if (!imageFile.isEmpty()) {
                 String filename = imageFile.getOriginalFilename();
-                Path path = Paths.get(uploadPath + filename);
+                Path path = Paths.get(uploadPath, filename);
                 Files.write(path, imageFile.getBytes());
                 product.setImage(filename);
+                product.setImageUrl("/productImages/" + filename); // Thêm đường dẫn URL mới cho hình ảnh
             }
             productService.addProduct(product);
         } catch (IOException e) {
@@ -79,13 +89,27 @@ public class ProductController {
             return "products/update-product";
         }
         try {
+            // Kiểm tra xem có hình ảnh mới được chọn không
             if (!imageFile.isEmpty()) {
                 String filename = imageFile.getOriginalFilename();
-                Path path = Paths.get(uploadPath + filename);
+                Path path = Paths.get(uploadPath, filename);
                 Files.write(path, imageFile.getBytes());
                 product.setImage(filename);
+                product.setImageUrl("/productImages/" + filename); // Thêm đường dẫn URL mới cho hình ảnh
+
+                // Kiểm tra xem hình ảnh cũ có tồn tại không
+                Product existingProduct = productService.getProductById(id).orElseThrow(() -> new IllegalArgumentException("Invalid product Id:" + id));
+                if (existingProduct.getImage() != null && !existingProduct.getImage().equals(filename)) {
+                    // Hiển thị hình ảnh mới khi chưa tồn tại trong tệp
+                    model.addAttribute("imageUrl", product.getImageUrl());
+                }
+            } else {
+                // Nếu không có hình ảnh mới được chọn, giữ nguyên hình ảnh cũ
+                Product existingProduct = productService.getProductById(id).orElseThrow(() -> new IllegalArgumentException("Invalid product Id:" + id));
+                product.setImage(existingProduct.getImage());
+                product.setImageUrl(existingProduct.getImageUrl());
             }
-            productService.updateProduct(product);
+            productService.updateProduct(product, imageFile);
         } catch (IOException e) {
             e.printStackTrace();
             model.addAttribute("categories", categoryService.getAllCategories());
@@ -94,9 +118,16 @@ public class ProductController {
         return "redirect:/products";
     }
 
+
+
     @GetMapping("/delete/{id}")
-    public String deleteProduct(@PathVariable Long id) {
-        productService.deleteProductById(id);
+    public String deleteProduct(@PathVariable Long id, Model model) {
+        try {
+            productService.deleteProductById(id);
+        } catch (Exception e) {
+            model.addAttribute("errorMessage", "Error deleting product: " + e.getMessage());
+            return "error"; // Hoặc trả về trang hiển thị lỗi tùy chọn
+        }
         return "redirect:/products";
     }
 
@@ -115,5 +146,16 @@ public class ProductController {
         }
         model.addAttribute("products", searchResults);
         return "products/product-list";
+    }
+    @GetMapping("/detail/{id}")
+    public String viewProductDetail(@PathVariable Long id, Model model) {
+        Product product = productService.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Product not found: " + id));
+        model.addAttribute("product", product);
+        return "/products/detail";
+    }
+    @GetMapping("/management")
+    public String showProductManagement() {
+        return "/products/product-management";
     }
 }
