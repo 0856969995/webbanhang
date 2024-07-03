@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Product Comments</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container mt-5">
+    <h2>Product Comments</h2>
+    <!-- List of comments -->
+    <div th:each="comment : ${comments}" class="card mb-3">
+        <div class="card-body">
+            <h5 class="card-title" th:text="${comment.user.username}">User</h5>
+            <p class="card-text" th:text="${comment.content}">Comment Content</p>
+            <p class="card-text">
+                <small class="text-muted">Posted on <span th:text="${#temporals.format(comment.createdAt, 'dd-MM-yyyy HH:mm')}">Comment Time</span></small>
+            </p>
+            <!-- Add reply form for each comment -->
+            <form th:action="@{/api/comments/{id}/reply(id=${comment.id})}" method="post">
+                <div class="mb-3">
+                    <label for="replyContent" class="form-label">Reply to this comment:</label>
+                    <textarea class="form-control" id="replyContent" name="content" rows="2" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Reply</button>
+            </form>
+
+            <!-- Display replies to this comment -->
+            <div th:each="reply : ${comment.replies}" class="card mt-3">
+                <div class="card-body">
+                    <h6 class="card-title" th:text="${reply.user.username}">User</h6>
+                    <p class="card-text" th:text="${reply.content}">Reply Content</p>
+                    <p class="card-text">
+                        <small class="text-muted">Posted on <span th:text="${#temporals.format(reply.createdAt, 'dd-MM-yyyy HH:mm')}">Reply Time</span></small>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form to add new comment -->
+    <div class="mt-5">
+        <h3>Add a New Comment</h3>
+        <form th:action="@{/api/comments}" method="post">
+            <div class="mb-3">
+                <label for="commentContent" class="form-label">Your Comment:</label>
+                <textarea class="form-control" id="commentContent" name="content" rows="3" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,4 +1,5 @@
 package com.example.webbanhang.controller;
+
 import com.example.webbanhang.model.Category;
 import com.example.webbanhang.model.Product;
 import com.example.webbanhang.service.CategoryService;
@@ -6,16 +7,21 @@ import com.example.webbanhang.service.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+
 @Controller
 @RequestMapping("/products")
 public class ProductController {
@@ -34,8 +40,14 @@ public class ProductController {
     }
 
     @GetMapping
-    public String showProductList(Model model) {
-        model.addAttribute("products", productService.getAllProducts());
+    public String showProductList(@RequestParam(defaultValue = "0") int page,
+                                  @RequestParam(defaultValue = "10") int size,
+                                  Model model) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Product> productPage = productService.getAllProducts(pageable);
+        model.addAttribute("products", productPage.getContent());
+        model.addAttribute("totalPages", productPage.getTotalPages());
+        model.addAttribute("currentPage", page);
         return "products/product-list";
     }
 
@@ -69,7 +81,6 @@ public class ProductController {
         }
         return "redirect:/products";
     }
-
 
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable Long id, Model model) {
@@ -118,8 +129,6 @@ public class ProductController {
         return "redirect:/products";
     }
 
-
-
     @GetMapping("/delete/{id}")
     public String deleteProduct(@PathVariable Long id, Model model) {
         try {
@@ -135,18 +144,24 @@ public class ProductController {
     public String searchProduct(@RequestParam("keyword") String keyword,
                                 @RequestParam(value = "category", required = false) Long categoryId,
                                 @RequestParam(value = "categoryName", required = false) String categoryName,
+                                @RequestParam(defaultValue = "0") int page,
+                                @RequestParam(defaultValue = "10") int size,
                                 Model model) {
-        List<Product> searchResults;
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Product> searchResults;
         if (categoryId != null) {
-            searchResults = productService.searchProductsByKeywordAndCategory(keyword, categoryId);
+            searchResults = productService.searchProductsByKeywordAndCategory(keyword, categoryId, pageable);
         } else if (categoryName != null && !categoryName.isEmpty()) {
-            searchResults = productService.searchProductsByKeywordAndCategoryName(keyword, categoryName);
+            searchResults = productService.searchProductsByKeywordAndCategoryName(keyword, categoryName, pageable);
         } else {
-            searchResults = productService.searchProducts(keyword);
+            searchResults = productService.searchProducts(keyword, pageable);
         }
-        model.addAttribute("products", searchResults);
+        model.addAttribute("products", searchResults.getContent());
+        model.addAttribute("totalPages", searchResults.getTotalPages());
+        model.addAttribute("currentPage", page);
         return "products/product-list";
     }
+
     @GetMapping("/detail/{id}")
     public String viewProductDetail(@PathVariable Long id, Model model) {
         Product product = productService.findById(id)
@@ -154,6 +169,7 @@ public class ProductController {
         model.addAttribute("product", product);
         return "/products/detail";
     }
+
     @GetMapping("/management")
     public String showProductManagement() {
         return "/products/product-management";

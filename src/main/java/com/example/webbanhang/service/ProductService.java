@@ -5,6 +5,8 @@ import com.example.webbanhang.repository.ProductRepository;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -13,7 +15,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -25,9 +26,9 @@ public class ProductService {
     @Value("${upload.path}")
     private String uploadPath;
 
-    // Retrieve all products from the database
-    public List<Product> getAllProducts() {
-        return productRepository.findAll();
+    // Retrieve all products with pagination
+    public Page<Product> getAllProducts(Pageable pageable) {
+        return productRepository.findAll(pageable);
     }
 
     // Retrieve a product by its id
@@ -63,8 +64,6 @@ public class ProductService {
         return productRepository.save(existingProduct);
     }
 
-
-
     // Delete a product by its id
     public void deleteProductById(Long id) {
         Optional<Product> productOptional = productRepository.findById(id);
@@ -88,21 +87,19 @@ public class ProductService {
         productRepository.deleteById(id);
     }
 
-    public List<Product> searchProducts(String keyword) {
-        return productRepository.findByKeyword(keyword);
+    public Page<Product> searchProducts(String keyword, Pageable pageable) {
+        return productRepository.findByKeyword(keyword, pageable);
     }
 
-    public List<Product> searchProductsByKeywordAndCategory(String keyword, Long categoryId) {
-        if (categoryId != null) {
-            return productRepository.findByKeywordAndCategory(keyword, categoryId);
-        } else {
-            return productRepository.findByKeyword(keyword);
-        }
+    public Page<Product> searchProductsByKeywordAndCategory(String keyword, Long categoryId, Pageable pageable) {
+        return productRepository.findByKeywordAndCategory(keyword, categoryId, pageable);
     }
+
     public Optional<Product> findById(Long id) {
         return productRepository.findById(id);
     }
-    public List<Product> searchProductsByKeywordAndCategoryName(String keyword, String categoryName) {
-        return productRepository.findByKeywordAndCategoryName(keyword, categoryName);
+
+    public Page<Product> searchProductsByKeywordAndCategoryName(String keyword, String categoryName, Pageable pageable) {
+        return (Page<Product>) productRepository.findByKeywordAndCategoryName(keyword, categoryName, pageable);
     }
 }
